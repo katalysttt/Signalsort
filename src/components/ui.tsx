@@ -142,3 +142,137 @@ export function pct(n: number, d: number) {
 export function human(s: string) {
   return s.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+export const TONES = {
+  violet: { bg: "bg-[#f3f0ff]", border: "border-[#e2dafe]", text: "text-[#5b45e0]", stroke: "#6d55ee" },
+  mint: { bg: "bg-[#eaf8f1]", border: "border-[#cdeedd]", text: "text-[#178f57]", stroke: "#1a9e63" },
+  peach: { bg: "bg-[#fff3e8]", border: "border-[#fde0c6]", text: "text-[#c2620e]", stroke: "#e07b1f" },
+  sky: { bg: "bg-[#ebf3fe]", border: "border-[#d3e4fb]", text: "text-[#2a78d6]", stroke: "#2a78d6" },
+  rose: { bg: "bg-[#fdeeee]", border: "border-[#f8d5d5]", text: "text-[#c23535]", stroke: "#d03b3b" },
+} as const;
+export type Tone = keyof typeof TONES;
+
+/** Gradient page header with optional tabs and actions (title, subtitle, right side). */
+export function PageHeader({
+  title,
+  subtitle,
+  tabs,
+  actions,
+  meta,
+}: {
+  title: string;
+  subtitle?: React.ReactNode;
+  tabs?: { label: string; href: string; active?: boolean }[];
+  actions?: React.ReactNode;
+  meta?: React.ReactNode;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-[#ece6fb] bg-gradient-to-r from-[#efe9ff] via-[#f7f1fb] to-[#fdeee6] px-6 py-6 sm:px-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[28px] font-semibold tracking-tight text-navy">{title}</h1>
+          {subtitle && <p className="mt-1 max-w-2xl text-sm text-navy-500">{subtitle}</p>}
+        </div>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      </div>
+      {(tabs || meta) && (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {tabs?.map((t) => (
+            <a
+              key={t.label}
+              href={t.href}
+              className={clsx(
+                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                t.active ? "bg-white text-navy shadow-sm" : "text-navy-500 hover:bg-white/60",
+              )}
+            >
+              {t.label}
+            </a>
+          ))}
+          {meta && <span className="ml-1 flex items-center gap-1.5 text-xs text-navy-400">{meta}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Pill({ children }: { children: React.ReactNode }) {
+  return <span className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium text-navy shadow-sm">{children}</span>;
+}
+
+/** Tinted KPI card. `chart` is an optional sparkline/mini visual rendered to the right. */
+export function KpiCard({
+  label,
+  value,
+  tone = "violet",
+  hint,
+  chart,
+  href,
+}: {
+  label: string;
+  value: React.ReactNode;
+  tone?: Tone;
+  hint?: React.ReactNode;
+  chart?: React.ReactNode;
+  href?: string;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className={clsx("relative rounded-2xl border p-4", t.bg, t.border)}>
+      <div className="flex items-center justify-between">
+        <span className={clsx("text-xs font-semibold", t.text)}>{label}</span>
+        {href && (
+          <a href={href} className={clsx("text-xs", t.text)} aria-label={`Open ${label}`}>
+            ↗
+          </a>
+        )}
+      </div>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="text-[28px] font-semibold leading-none tracking-tight text-navy">{value}</div>
+        {chart && <div className="h-10 w-24 shrink-0">{chart}</div>}
+      </div>
+      {hint && <div className="mt-2 text-xs text-navy-500">{hint}</div>}
+    </div>
+  );
+}
+
+/** Segmented control (Daily / Weekly style). */
+export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
+  return (
+    <div className="inline-flex rounded-lg bg-surface p-0.5">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          onClick={() => onChange(o.value)}
+          className={clsx("rounded-md px-2.5 py-1 text-xs font-medium", value === o.value ? "bg-brand-600 text-white shadow-sm" : "text-navy-500 hover:text-navy")}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Acquisition-channel style list: label, value, share, coloured progress bar. */
+export function ProgressList({ rows }: { rows: { label: string; value: number; color: string; href?: string }[] }) {
+  const total = rows.reduce((a, r) => a + r.value, 0) || 1;
+  const max = Math.max(...rows.map((r) => r.value), 1);
+  return (
+    <ul className="space-y-4">
+      {rows.map((r) => (
+        <li key={r.label}>
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="truncate text-navy">{r.label}</span>
+            <span className="ml-3 shrink-0">
+              <span className="font-semibold text-navy">{r.value.toLocaleString()}</span>
+              <span className="ml-2 inline-block w-9 text-right text-xs text-navy-400">{Math.round((r.value / total) * 100)}%</span>
+            </span>
+          </div>
+          <div className="mt-1.5 h-1.5 rounded-full bg-surface">
+            <div className="h-1.5 rounded-full" style={{ width: `${(r.value / max) * 100}%`, background: r.color }} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}

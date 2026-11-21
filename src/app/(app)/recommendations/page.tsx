@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { useState } from "react";
 import { Check, ChevronDown, CircleDashed, FlaskConical, Gauge, Hammer, Rocket, X } from "lucide-react";
-import { Badge, Card, Empty, human, Loading, PriorityBadge, refreshAll, useApi } from "@/components/ui";
+import { Badge, Card, Empty, human, Loading, PriorityBadge, refreshAll, useApi, PageHeader } from "@/components/ui";
 import { AREA_LABELS, type Recommendation, type RecommendationStatus } from "@/lib/types";
 
 const STATUS: { key: RecommendationStatus; label: string; tone: string }[] = [
@@ -24,12 +24,10 @@ export default function RecommendationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="h-page">Recommendations</h1>
-        <p className="mt-1 text-sm text-navy-400">
-          Ranked by a transparent score: 30% frequency, 30% severity, 20% user impact (feedback + behaviour reach), 20% business impact.
-        </p>
-      </div>
+      <PageHeader
+        title="Recommendations"
+        subtitle="Ranked by a transparent score: 30% frequency, 30% severity, 20% user impact (feedback + behaviour reach), 20% business impact."
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <button onClick={() => setFilter("all")} className={clsx("card p-3 text-left", filter === "all" && "ring-2 ring-brand-400")}>

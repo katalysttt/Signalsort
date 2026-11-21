@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Activity, GitMerge, Info, Lightbulb, Quote, ThumbsUp } from "lucide-react";
-import { Badge, Card, Empty, human, Loading, OriginBadge, PriorityBadge, SENTIMENT_COLORS, useApi } from "@/components/ui";
+import { Badge, Card, Empty, human, Loading, OriginBadge, PriorityBadge, SENTIMENT_COLORS, useApi, PageHeader } from "@/components/ui";
 import { AREA_LABELS, type AnalysisResult, type BehaviourPattern, type Insight, type Recommendation } from "@/lib/types";
 
 export default function InsightsPage() {
@@ -18,11 +18,16 @@ export default function InsightsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="h-page">Insights</h1>
-        <p className="mt-1 text-sm text-navy-400">
-          Feedback grouped into recurring themes. Counts and percentages are computed from linked feedback — every insight traces back to the original quotes.
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2 text-xs text-navy-400">
+        <PageHeader
+          title="Insights"
+          subtitle="Feedback grouped into recurring themes. Counts and percentages are computed from linked feedback, and every insight traces back to the original quotes."
+          tabs={[
+            ...(r.combined.length ? [{ label: "Combined", href: "#combined" }] : []),
+            { label: "Problems & requests", href: "#issues" },
+            ...(praise.length ? [{ label: "Strengths", href: "#strengths" }] : []),
+          ]}
+        />
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-navy-400">
           <Badge tone="brand">Engine: {r.engine === "rules" ? "rule-based" : r.engine}</Badge>
           <Badge>{r.totals.analysed} feedback items analysed</Badge>
           <Badge>Run #{r.runId} · {new Date(r.createdAt).toLocaleString()}</Badge>
@@ -104,7 +109,7 @@ export default function InsightsPage() {
         </section>
       )}
 
-      <section className="space-y-3">
+      <section id="issues" className="scroll-mt-24 space-y-3">
         <SectionTitle icon={<Lightbulb size={16} />} title="Recurring problems & requests" sub={`${issues.length} themes, ranked by priority score`} />
         {issues.length === 0 && <Empty title="No problems or requests detected" />}
         {issues.map((i) => (
@@ -113,7 +118,7 @@ export default function InsightsPage() {
       </section>
 
       {praise.length > 0 && (
-        <section className="space-y-3">
+        <section id="strengths" className="scroll-mt-24 space-y-3">
           <SectionTitle icon={<ThumbsUp size={16} />} title="What users appreciate" sub="Strengths to protect when changing the product" />
           <div className="grid gap-3 md:grid-cols-2">
             {praise.map((i) => (

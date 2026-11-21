@@ -2,34 +2,36 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AlertCircle, Radio } from "lucide-react";
-import { FunnelChart, HBar, TrendLine } from "@/components/charts";
-import { Badge, Card, CardHeader, Empty, human, Loading, OriginBadge, Stat, useApi } from "@/components/ui";
+import { AreaTrend, FunnelChart, HBar, Sparkline } from "@/components/charts";
+import { Badge, Card, CardHeader, Empty, human, Loading, OriginBadge, useApi, KpiCard, PageHeader, Segmented, TONES } from "@/components/ui";
 import type { BehaviourReport } from "@/lib/engine/behaviour";
 import { AREA_LABELS } from "@/lib/types";
 
 export default function BehaviourPage() {
   const [sim, setSim] = useState(true);
+  const [metric, setMetric] = useState<"users" | "events">("users");
   const { data, loading, reload } = useApi<{ report: BehaviourReport; recent: any[] }>(`/api/behaviour?simulated=${sim ? 1 : 0}`);
   if (loading && !data) return <Loading />;
   const r = data?.report;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="h-page">Behaviour analytics</h1>
-          <p className="mt-1 text-sm text-navy-400">What users actually do, computed from events sent by the SignalSort SDK or tracking API.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-navy-500">
-            <input type="checkbox" checked={sim} onChange={(e) => setSim(e.target.checked)} className="h-4 w-4 accent-brand-600" />
-            Include simulated demo events
-          </label>
-          <button className="btn-secondary" onClick={reload}>
-            Refresh
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Behaviour analytics"
+        subtitle="What users actually do, computed from events sent by the SignalSort SDK or tracking API."
+        meta={r ? <OriginBadge origin={r.dataOrigin} /> : undefined}
+        actions={
+          <>
+            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy-500 shadow-sm">
+              <input type="checkbox" checked={sim} onChange={(e) => setSim(e.target.checked)} className="h-4 w-4 accent-brand-600" />
+              Include simulated events
+            </label>
+            <button className="btn-secondary py-2" onClick={reload}>
+              Refresh
+            </button>
+          </>
+        }
+      />
 
       {r && r.dataOrigin !== "none" && r.dataOrigin !== "live" && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -58,15 +60,23 @@ export default function BehaviourPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-            <Stat label="Active users" value={r.totals.users} />
-            <Stat label="Sessions" value={r.totals.sessions} />
-            <Stat label="Events" value={r.totals.events.toLocaleString()} />
-            <Stat label="Median session" value={r.totals.medianSessionSeconds != null ? fmtDur(r.totals.medianSessionSeconds) : "—"} />
-            <Stat label="Sign-ups" value={r.totals.signups} />
-            <Stat label="Logins" value={r.totals.logins} />
-            <Stat label="Searches" value={r.totals.searches} />
-            <Stat label="Failed actions" value={r.totals.failedActions} />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <KpiCard
+              label="Active users"
+              tone="violet"
+              value={r.totals.users}
+              chart={<Sparkline data={r.daily} dataKey="users" color={TONES.violet.stroke} />}
+              hint={`${r.totals.signups} sign-ups · ${r.totals.logins} logins`}
+            />
+            <KpiCard
+              label="Sessions"
+              tone="mint"
+              value={r.totals.sessions}
+              chart={<Sparkline data={r.daily} dataKey="events" color={TONES.mint.stroke} />}
+              hint={`Median session ${r.totals.medianSessionSeconds != null ? fmtDur(r.totals.medianSessionSeconds) : "—"}`}
+            />
+            <KpiCard label="Events tracked" tone="peach" value={r.totals.events.toLocaleString()} hint={`${r.totals.searches} searches · ${r.totals.failedActions} failed actions`} />
+            <KpiCard label="Patterns detected" tone="sky" value={r.patterns.length} hint={`${r.patterns.filter((p) => p.severity >= 4).length} high severity`} />
           </div>
 
           <Card>
@@ -109,9 +119,22 @@ export default function BehaviourPage() {
               </Card>
             ))}
             <Card>
-              <CardHeader title="User activity" subtitle="Daily active users" />
-              <div className="p-4">
-                <TrendLine data={r.daily} lines={[{ key: "users", name: "Active users", color: "#2a78d6" }]} />
+              <div className="flex items-center justify-between px-5 pt-5">
+                <div>
+                  <h3 className="text-sm font-semibold text-navy">User activity</h3>
+                  <p className="mt-0.5 text-xs text-navy-400">{metric === "users" ? "Daily active users" : "Events per day"}</p>
+                </div>
+                <Segmented<"users" | "events">
+                  value={metric}
+                  onChange={setMetric}
+                  options={[
+                    { value: "users", label: "Users" },
+                    { value: "events", label: "Events" },
+                  ]}
+                />
+              </div>
+              <div className="px-2 pb-3 pt-2">
+                <AreaTrend data={r.daily} series={[{ key: metric, name: metric === "users" ? "Active users" : "Events", color: metric === "users" ? "#6d55ee" : "#2a78d6" }]} />
               </div>
             </Card>
             <Card>

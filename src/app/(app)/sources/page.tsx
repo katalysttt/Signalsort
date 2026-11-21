@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, ClipboardPaste, Code2, Copy, FileUp, PlayCircle, RotateCcw, Trash2, UploadCloud } from "lucide-react";
-import { Badge, Card, CardHeader, human, Loading, refreshAll, Spinner, useApi } from "@/components/ui";
+import { Badge, Card, CardHeader, human, Loading, refreshAll, Spinner, useApi, PageHeader } from "@/components/ui";
 
 type Tab = "paste" | "upload" | "sdk" | "demo";
 
@@ -38,10 +38,7 @@ export default function SourcesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="h-page">Data sources</h1>
-        <p className="mt-1 text-sm text-navy-400">Bring in reviews, interview transcripts, survey exports, support conversations and in-app behaviour.</p>
-      </div>
+      <PageHeader title="Data sources" subtitle="Bring in reviews, interview transcripts, survey exports, support conversations and in-app behaviour." />
 
       <Card>
         <div className="flex gap-1 overflow-x-auto border-b border-line px-3 pt-3" role="tablist">

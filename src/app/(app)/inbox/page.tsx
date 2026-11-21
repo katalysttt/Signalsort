@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Trash2, X } from "lucide-react";
-import { Badge, Card, Empty, human, Loading, PriorityBadge, refreshAll, SENTIMENT_COLORS, SentimentBadge, useApi } from "@/components/ui";
+import { Badge, Card, Empty, human, Loading, PriorityBadge, refreshAll, SENTIMENT_COLORS, SentimentBadge, useApi, PageHeader } from "@/components/ui";
 import { CATEGORIES, type FeedbackItem } from "@/lib/types";
 
 const SOURCES = ["paste", "transcript", "csv", "excel", "survey", "support", "pdf", "text", "demo"];
@@ -10,6 +10,10 @@ const SOURCES = ["paste", "transcript", "csv", "excel", "survey", "support", "pd
 export default function Inbox() {
   const [f, setF] = useState({ q: "", sentiment: "", category: "", source: "", priority: "", from: "", to: "" });
   const [debounced, setDebounced] = useState(f);
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("q") || p.get("sentiment")) setF((x) => ({ ...x, q: p.get("q") ?? "", sentiment: p.get("sentiment") ?? "" }));
+  }, []);
   useEffect(() => {
     const t = setTimeout(() => setDebounced(f), 250);
     return () => clearTimeout(t);
@@ -22,10 +26,14 @@ export default function Inbox() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="h-page">Feedback inbox</h1>
-        <p className="mt-1 text-sm text-navy-400">Every piece of submitted feedback with its AI analysis. Click an entry to see the original text and extracted signals.</p>
-      </div>
+      <PageHeader
+        title="Feedback inbox"
+        subtitle="Every piece of submitted feedback with its AI analysis. Click an entry to see the original text and extracted signals."
+        tabs={[
+          { label: "All", href: "/inbox", active: !f.sentiment },
+          ...(["positive", "negative", "neutral", "mixed"] as const).map((x) => ({ label: human(x), href: `?sentiment=${x}`, active: f.sentiment === x })),
+        ]}
+      />
 
       <Card className="p-4">
         <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-8">

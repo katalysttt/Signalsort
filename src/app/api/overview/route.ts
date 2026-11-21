@@ -25,6 +25,18 @@ export async function GET() {
   signalRows.forEach((r) => (signals[r.polarity] = r.n));
   // Most recent analysis may be older than the newest feedback.
   const [latestFeedback] = await q<any>("SELECT max(created_at) AS t FROM feedback");
+  const dailyFeedback = await q<any>(
+    `SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS date, count(*)::int AS n,
+            count(*) FILTER (WHERE sentiment IN ('negative','mixed'))::int AS neg
+     FROM feedback GROUP BY 1 ORDER BY 1`,
+  );
+  const matrix = await q<any>(
+    "SELECT category, sentiment, count(*)::int AS n FROM feedback WHERE category IS NOT NULL AND sentiment IS NOT NULL GROUP BY 1, 2",
+  );
+  const [range] = await q<any>(
+    `SELECT least((SELECT min(created_at) FROM feedback), (SELECT min(ts) FROM events)) AS min,
+            greatest((SELECT max(created_at) FROM feedback), (SELECT max(ts) FROM events)) AS max`,
+  );
   return json({
     totals: { feedback: total, unanalysed: unanalysed[0]?.n ?? 0 },
     sentiment,
@@ -41,5 +53,8 @@ export async function GET() {
       features: behaviour.features,
     },
     recommendationStatus: Object.fromEntries(recs.map((r) => [r.status, r.n])),
+    dailyFeedback: dailyFeedback.map((d) => ({ date: d.date, feedback: d.n, negative: d.neg })),
+    matrix: matrix.map((m) => ({ category: m.category, sentiment: m.sentiment, count: m.n })),
+    range: { from: range?.min ? new Date(range.min).toISOString() : null, to: range?.max ? new Date(range.max).toISOString() : null },
   });
 }
