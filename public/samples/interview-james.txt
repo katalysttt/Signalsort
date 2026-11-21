@@ -1,0 +1,8 @@
+Interviewer: How often do you use the app?
+James: Two or three times a week, mostly dinner.
+Interviewer: What do you like about it?
+James: The live tracking is great, I love seeing exactly where the rider is.
+Interviewer: What frustrates you?
+James: I cannot find my previous orders. I wanted a receipt for work and spent ages looking for it. In the end I used search but it still wasn't obvious.
+Interviewer: And checkout?
+James: Payment selection is confusing. I'm never sure which card is selected, so I open and close the payment screen to double check.

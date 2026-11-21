@@ -1,0 +1,8 @@
+Interviewer: Thanks for joining. Can you walk me through the last time you ordered?
+Amara: Sure. I opened the app at lunch, picked a place I like and added my usual jollof rice. Browsing restaurants is honestly really easy.
+Interviewer: What happened at checkout?
+Amara: That's where it gets annoying. There are too many steps, address, time, tip, then payment. And the payment page just froze on me, I had to close it and open it again a few times.
+Interviewer: Did you complete the order?
+Amara: Eventually, but I nearly gave up. I almost abandoned the order and went to a competitor.
+Interviewer: Anything else you'd change?
+Amara: I wish I could just reorder what I had last week. I eat the same thing most days, so having to search my previous orders every time is frustrating.

@@ -1,0 +1,6 @@
+Customer: Hi, my payment keeps failing at checkout and the page freezes.
+Agent: Sorry to hear that! Could you tell me which payment method you're using?
+Customer: Visa debit card. It just spins forever and then nothing happens.
+Agent: Thanks, I've logged this with our payments team.
+Customer: Also the delivery took 70 minutes last time, which is way too long.
+Agent: I'm sorry about that, I've added a credit to your account.
