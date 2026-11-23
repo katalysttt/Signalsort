@@ -37,7 +37,7 @@ Other scripts: `npm test` (engine unit tests), `npm run typecheck`, `npm run bui
 | **Insights** | Recurring themes with mention counts, frequency, number of sources, sentiment split, supporting quotes, business impact, severity, priority, and the behavioural evidence for each. **Combined insights** put "what users say" next to "what users do" and include a note that this is correlation, not proof of cause |
 | **Behaviour analytics** | Active users, sessions, median session length, sign-ups, logins, searches, failed actions, funnels with drop-off, feature adoption (most and least used), page navigation, detected anomalies, and a live event feed. Simulated events can be switched on or off |
 | **Recommendations** | Ranked by a visible score. Each one answers the six questions (what is wrong, why it happens, who is affected, what to change, how it helps, how to measure it) and lists improvements, A/B tests, metrics and the reason it was generated. PMs can **accept, reject, mark in progress or mark implemented**, and these decisions survive re-analysis |
-| **Data sources** | Paste feedback (reviews, transcript, support chat, survey), upload CSV / Excel / TXT / VTT / PDF, set up the SDK with write key and snippets, send a test event, load or reset the demo, and see the status of every source |
+| **Data sources** | Paste feedback (reviews, transcript, support chat, survey), upload CSV / Excel (.xlsx) / TXT / VTT / PDF, set up the SDK with write key and snippets, send a test event, load or reset the demo, and see the status of every source |
 | **/demo-app** | *FoodDash*, a fictional food-delivery app built with the real SDK. Every click there sends **live** events |
 
 ## How the analysis stays honest
@@ -93,7 +93,7 @@ Sample files to upload are in `public/samples/` (CSV reviews, two interviews, a 
 
 ## Architecture
 
-* **Next.js 15 (App Router) + React 19 + Tailwind + Recharts.** UI and API routes run in one Node app.
+* **Next.js 16 (App Router) + React 19 + Tailwind + Recharts.** UI and API routes run in one Node app. Excel parsing uses ExcelJS, PDF text extraction uses unpdf.
 * `src/lib/engine/rules.ts`: deterministic analysis (clause splitting, sentiment lexicon with negation, request detection, topic taxonomy).
 * `src/lib/engine/llm.ts`, `llm-stages.ts`: OpenAI / Anthropic over plain `fetch`, with output validated at three stages (per-item analysis, theme clustering, recommendations).
 * `src/lib/engine/behaviour.ts`: funnels, adoption and pattern detection.

@@ -13,13 +13,12 @@ export async function parseFile(name: string, buf: Buffer, hint: SourceType | nu
     const type = hint === "survey" ? "survey" : "csv";
     return { type, items: parseRows(parsed.data, type === "survey") };
   }
-  if (ext === "xlsx" || ext === "xls") {
-    const XLSX = await import("xlsx");
-    const wb = XLSX.read(buf, { type: "buffer" });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+  if (ext === "xls") {
+    throw new Error("Legacy .xls files are not supported. In Excel, use File → Save As → .xlsx (or .csv) and upload again.");
+  }
+  if (ext === "xlsx") {
     const type = hint === "survey" ? "survey" : "excel";
-    return { type, items: parseRows(rows, type === "survey") };
+    return { type, items: parseRows(await xlsxRows(buf), type === "survey") };
   }
   if (ext === "pdf") {
     const { extractText, getDocumentProxy } = await import("unpdf");
@@ -58,4 +57,39 @@ export async function storeItems(
     await q("UPDATE data_sources SET status = 'error', meta = meta || $2::jsonb WHERE id = $1", [src.id, JSON.stringify({ error: String(e.message) })]);
   }
   return { sourceId: src.id, ids };
+}
+
+/** Reads the first worksheet of an .xlsx file into header-keyed rows (ExcelJS). */
+export async function xlsxRows(buf: Buffer): Promise<Record<string, unknown>[]> {
+  const ExcelJS = (await import("exceljs")).default;
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf as any);
+  const sheet = wb.worksheets[0];
+  if (!sheet) return [];
+  const text = (v: any): string => {
+    if (v == null) return "";
+    if (v instanceof Date) return v.toISOString();
+    if (typeof v === "object") {
+      if (Array.isArray(v.richText)) return v.richText.map((r: any) => r.text).join("");
+      if ("text" in v) return String(v.text);
+      if ("result" in v) return text(v.result);
+    }
+    return String(v);
+  };
+  const headers: string[] = [];
+  sheet.getRow(1).eachCell({ includeEmpty: true }, (cell, col) => (headers[col] = text(cell.value).trim() || `Column ${col}`));
+  const rows: Record<string, unknown>[] = [];
+  for (let r = 2; r <= sheet.rowCount; r++) {
+    const row = sheet.getRow(r);
+    const rec: Record<string, unknown> = {};
+    let any = false;
+    headers.forEach((h, col) => {
+      if (!h) return;
+      const v = text(row.getCell(col).value);
+      if (v) any = true;
+      rec[h] = v;
+    });
+    if (any) rows.push(rec);
+  }
+  return rows;
 }

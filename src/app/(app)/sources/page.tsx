@@ -264,7 +264,7 @@ function UploadForm({ onDone }: { onDone: (m: string) => void }) {
           ref={input}
           type="file"
           multiple
-          accept=".csv,.tsv,.xlsx,.xls,.txt,.md,.vtt,.pdf"
+          accept=".csv,.tsv,.xlsx,.txt,.md,.vtt,.pdf"
           className="hidden"
           onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? [])])}
         />
