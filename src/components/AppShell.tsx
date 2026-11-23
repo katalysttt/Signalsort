@@ -51,7 +51,7 @@ export function Logo({ dark = false }: { dark?: boolean }) {
 function Sidebar({ path, engine, onClose }: { path: string; engine: string; onClose?: () => void }) {
   const rules = !engine || engine.startsWith("Built-in");
   return (
-    <aside className="flex h-full w-64 flex-col bg-gradient-to-b from-[#161935] to-[#1d1f45] px-4 py-5 text-slate-300">
+    <aside className="flex h-full w-64 flex-col overflow-y-auto overscroll-contain [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin] bg-gradient-to-b from-[#161935] to-[#1d1f45] px-4 py-5 text-slate-300">
       <div className="flex items-center justify-between">
         <Logo dark />
         {onClose && (
