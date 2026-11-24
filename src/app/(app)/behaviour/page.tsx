@@ -8,9 +8,8 @@ import type { BehaviourReport } from "@/lib/engine/behaviour";
 import { AREA_LABELS } from "@/lib/types";
 
 export default function BehaviourPage() {
-  const [sim, setSim] = useState(true);
   const [metric, setMetric] = useState<"users" | "events">("users");
-  const { data, loading, reload } = useApi<{ report: BehaviourReport; recent: any[] }>(`/api/behaviour?simulated=${sim ? 1 : 0}`);
+  const { data, loading, reload } = useApi<{ report: BehaviourReport; recent: any[] }>("/api/behaviour");
   if (loading && !data) return <Loading />;
   const r = data?.report;
 
@@ -22,10 +21,6 @@ export default function BehaviourPage() {
         meta={r ? <OriginBadge origin={r.dataOrigin} /> : undefined}
         actions={
           <>
-            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm text-navy-500 shadow-sm">
-              <input type="checkbox" checked={sim} onChange={(e) => setSim(e.target.checked)} className="h-4 w-4 accent-brand-600" />
-              Include simulated events
-            </label>
             <button className="btn-secondary py-2" onClick={reload}>
               Refresh
             </button>
@@ -161,7 +156,6 @@ export default function BehaviourPage() {
                     <tr>
                       <th className="py-2 font-medium">Event</th>
                       <th className="py-2 font-medium">User</th>
-                      <th className="py-2 font-medium">Source</th>
                       <th className="py-2 font-medium">Time</th>
                     </tr>
                   </thead>
@@ -170,7 +164,6 @@ export default function BehaviourPage() {
                       <tr key={i}>
                         <td className="py-1.5 font-mono text-navy">{e.event}</td>
                         <td className="py-1.5 text-navy-500">{e.userId.slice(0, 18)}</td>
-                        <td className={`py-1.5 ${e.source === "simulated" ? "text-navy-300" : "font-medium text-emerald-700"}`}>{e.source === "simulated" ? "demo" : "live"}</td>
                         <td className="py-1.5 text-navy-400">{new Date(e.ts).toLocaleTimeString()}</td>
                       </tr>
                     ))}
