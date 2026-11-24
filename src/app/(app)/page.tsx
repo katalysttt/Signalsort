@@ -161,7 +161,7 @@ export default function Overview() {
           chart={<Sparkline data={b.daily} dataKey="users" color={TONES.mint.stroke} />}
           hint={
             <span className="flex items-center gap-1.5">
-              {b.totals.sessions} sessions {b.dataOrigin !== "live" && b.dataOrigin !== "none" && <span className="rounded bg-amber-100 px-1 text-[10px] text-amber-800">simulated</span>}
+              {b.totals.sessions} sessions
             </span>
           }
         />

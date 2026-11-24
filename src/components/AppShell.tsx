@@ -126,6 +126,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<string | null>(null);
   const [engine, setEngine] = useState<string>("");
   const [locked, setLocked] = useState(false);
+  const [demo, setDemo] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -134,11 +135,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       .then((s) => {
         setEngine(s.engineLabel);
         setLocked(!!s.passwordProtected);
+        setDemo(!!s.demoData);
       })
       .catch(() => {});
     const h = () => run();
+    const r = () =>
+      fetch("/api/settings")
+        .then((x) => x.json())
+        .then((s) => setDemo(!!s.demoData))
+        .catch(() => {});
     window.addEventListener("signalsort:run", h);
-    return () => window.removeEventListener("signalsort:run", h);
+    window.addEventListener("signalsort:refresh", r);
+    return () => {
+      window.removeEventListener("signalsort:run", h);
+      window.removeEventListener("signalsort:refresh", r);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => setOpen(false), [path]);
@@ -186,6 +197,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <span className="text-navy-400">Workspace</span>
             <span className="text-navy-300">/</span>
             <span className="font-medium text-navy">{current}</span>
+            {demo && (
+              <span
+                className="ml-2 inline-flex cursor-help items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-navy-400"
+                title="Behaviour analytics on this workspace include simulated events for the FoodDash demo scenario. Feedback items are the scenario’s sample reviews."
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-navy-300" /> Demo data
+              </span>
+            )}
           </div>
           <form
             className="relative ml-auto w-full max-w-xs"

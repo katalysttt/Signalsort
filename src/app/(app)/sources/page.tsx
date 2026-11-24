@@ -92,7 +92,7 @@ export default function SourcesPage() {
                   <tr key={`ev-${s.source}`}>
                     <td className="py-2.5 font-medium text-navy">{s.source === "simulated" ? "Simulated FoodDash events" : s.source === "sdk" ? "JavaScript SDK" : "Tracking API"}</td>
                     <td className="py-2.5">
-                      <Badge tone={s.source === "simulated" ? "amber" : "green"}>{s.source === "simulated" ? "Simulated events" : "Live events"}</Badge>
+                      <Badge tone={s.source === "simulated" ? "gray" : "green"}>{s.source === "simulated" ? "Demo events" : "Live events"}</Badge>
                     </td>
                     <td className="py-2.5 text-navy-500">
                       {s.events.toLocaleString()} events · {s.users} users
@@ -453,8 +453,8 @@ function DemoPanel({ onDone }: { onDone: (m: string) => void }) {
         </ul>
       </div>
       <div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <b>Simulated behaviour</b> (always labelled in the UI): 100 users initiate checkout · 42 abandon at payment selection · 58 complete · 65 visit order history · 30 search for previous
+        <div className="rounded-xl border border-line bg-surface p-4 text-sm text-navy-500">
+          <b>Simulated behaviour</b> (marked “Demo data” in the top bar): 100 users initiate checkout · 42 abandon at payment selection · 58 complete · 65 visit order history · 30 search for previous
           orders · 25 repeatedly open and close the payment page.
         </div>
         <div className="mt-4 flex flex-wrap gap-2">

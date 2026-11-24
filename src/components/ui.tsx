@@ -57,10 +57,8 @@ export function PriorityBadge({ p }: { p: Priority | string | null | undefined }
   return <Badge tone={tone}>{label}</Badge>;
 }
 
-export function OriginBadge({ origin }: { origin: string }) {
-  if (origin === "live") return <Badge tone="green">Live events</Badge>;
-  if (origin === "mixed") return <Badge tone="amber">Live + simulated</Badge>;
-  if (origin === "simulated") return <Badge tone="amber">Simulated demo data</Badge>;
+/** Data-origin chips were replaced by one page-level "Demo data" label in the top bar. */
+export function OriginBadge(_: { origin: string }) {
   return null;
 }
 

@@ -33,15 +33,6 @@ export default function BehaviourPage() {
         }
       />
 
-      {r && r.dataOrigin !== "none" && r.dataOrigin !== "live" && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          <AlertCircle size={16} className="mt-0.5 shrink-0" />
-          <div>
-            {r.totals.simulatedEvents} of {r.totals.events} events are <b>simulated</b> to reproduce the hackathon scenario (FoodDash). They are not real user behaviour.
-            {r.totals.liveEvents > 0 && ` ${r.totals.liveEvents} events are live from the SDK.`} Untick “Include simulated demo events” to see live data only.
-          </div>
-        </div>
-      )}
 
       {!r || r.totals.events === 0 ? (
         <Empty
@@ -179,7 +170,7 @@ export default function BehaviourPage() {
                       <tr key={i}>
                         <td className="py-1.5 font-mono text-navy">{e.event}</td>
                         <td className="py-1.5 text-navy-500">{e.userId.slice(0, 18)}</td>
-                        <td className="py-1.5">{e.source === "simulated" ? <Badge tone="amber">simulated</Badge> : <Badge tone="green">{e.source}</Badge>}</td>
+                        <td className={`py-1.5 ${e.source === "simulated" ? "text-navy-300" : "font-medium text-emerald-700"}`}>{e.source === "simulated" ? "demo" : "live"}</td>
                         <td className="py-1.5 text-navy-400">{new Date(e.ts).toLocaleTimeString()}</td>
                       </tr>
                     ))}

@@ -86,8 +86,6 @@ export async function runAnalysis(opts: { force?: boolean } = {}): Promise<Analy
 
     // 5. Behaviour pattern detection.
     const report = await behaviourReport(true);
-    if (report.dataOrigin === "simulated" || report.dataOrigin === "mixed")
-      notes.push("Behavioural findings include simulated demo events; they are labelled wherever shown.");
 
     // 4. Theme extraction / issue identification.
     let themes: ThemeDraft[] = [];

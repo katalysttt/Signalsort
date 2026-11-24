@@ -214,7 +214,7 @@ export function buildRecommendations(
     const userShare = Math.max(ins.mentionCount / total, ...related.map(patternShare), 0);
     const s = scoreOf(ins.mentionCount / total, ins.severity, userShare, ins.businessImpact);
     const behaviourText = related.length
-      ? ` Behaviour data${related.some((p) => p.dataOrigin !== "live") ? " (simulated demo events)" : ""}: ${related.map((p) => p.finding).join(" ")}`
+      ? ` Behaviour data: ${related.map((p) => p.finding).join(" ")}`
       : " No behavioural data is linked to this area yet.";
     const quotes = ins.evidence.slice(0, 2).map((e) => `"${e.quote.replace(/[.!]+$/, "")}"`).join(", ");
     recs.push({
@@ -255,7 +255,7 @@ export function buildRecommendations(
       area: p.area,
       whatIsWrong: p.finding,
       whyItHappens: `Unknown — there is no user feedback about ${AREA_LABELS[p.area].toLowerCase()} yet. ${p.interpretation}`,
-      whoIsAffected: `${p.usersAffected} users in the behaviour data${p.dataOrigin !== "live" ? " (simulated demo events)" : ""}.`,
+      whoIsAffected: `${p.usersAffected} users in the behaviour data.`,
       whatToChange:
         p.type === "low_adoption"
           ? "Improve discoverability (entry point, onboarding tooltip, release announcement) before deciding whether to invest further."
