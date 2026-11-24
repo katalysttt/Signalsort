@@ -25,8 +25,21 @@ To use an LLM and/or hosted Postgres, copy `.env.example` to `.env.local` and se
 | `OPENAI_API_KEY` (+ `OPENAI_MODEL`) | LLM pipeline through OpenAI |
 | `ANTHROPIC_API_KEY` (+ `ANTHROPIC_MODEL`) | LLM pipeline through Anthropic |
 | `DATABASE_URL` | Supabase / Postgres instead of embedded PGlite (same schema, created automatically) |
+| `SIGNALSORT_PASSWORD` | Requires a shared password to use the app. Leave empty locally. |
 
 Other scripts: `npm test` (engine unit tests), `npm run typecheck`, `npm run build && npm start`.
+
+## Deploying to Vercel
+
+1. **Create a hosted database.** Vercel does not keep files between requests, so the embedded database can't be used there. Create a free Supabase project and copy its **connection pooler** string (Project Settings → Database). SignalSort creates its tables on first run.
+2. **Import the repo in Vercel** (Add New → Project) and pick the `signalsort` branch.
+3. **Set environment variables** in the project settings before the first deploy:
+   * `DATABASE_URL`: the Supabase pooler string (required).
+   * `SIGNALSORT_PASSWORD`: a shared password (strongly recommended: without it, anyone with the link can see and delete data).
+   * `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`: optional. Without one, the built-in rule engine is used.
+4. **Deploy**, open the URL, log in, and click **Load FoodDash demo**.
+
+With a password set, every page and API requires a login, except the SDK script (`/sdk/signalsort.js`) and the event endpoint (`/api/track`), which is protected by the write key so instrumented apps can still send events. API keys stay on the server and are never sent to the browser.
 
 ## What is in the app
 
@@ -105,5 +118,5 @@ Sample files to upload are in `public/samples/` (CSV reviews, two interviews, a 
 ## Not yet built
 
 * Connectors to external feedback sources (App Store, Intercom, Zendesk). The data model and the Data Sources page are ready for them.
-* Authentication and multiple workspaces. Each instance is currently a single workspace with one write key.
+* User accounts and multiple workspaces. Each instance is a single workspace with one write key and an optional shared password.
 * Linking feedback authors to tracked users, which would turn correlated signals into per-user evidence.

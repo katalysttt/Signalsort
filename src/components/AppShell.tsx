@@ -11,6 +11,7 @@ import {
   Inbox,
   LayoutDashboard,
   Lightbulb,
+  LogOut,
   Menu,
   Search,
   Sparkles,
@@ -48,7 +49,7 @@ export function Logo({ dark = false }: { dark?: boolean }) {
   );
 }
 
-function Sidebar({ path, engine, onClose }: { path: string; engine: string; onClose?: () => void }) {
+function Sidebar({ path, engine, locked, onClose }: { path: string; engine: string; locked?: boolean; onClose?: () => void }) {
   const rules = !engine || engine.startsWith("Built-in");
   return (
     <aside className="flex h-full w-64 flex-col overflow-y-auto overscroll-contain [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin] bg-gradient-to-b from-[#161935] to-[#1d1f45] px-4 py-5 text-slate-300">
@@ -106,6 +107,13 @@ function Sidebar({ path, engine, onClose }: { path: string; engine: string; onCl
           {rules ? "Configure AI provider →" : "Manage data sources →"}
         </Link>
       </div>
+      {locked && (
+        <form method="POST" action="/api/logout" className="mt-3">
+          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white">
+            <LogOut size={17} /> Log out
+          </button>
+        </form>
+      )}
     </aside>
   );
 }
@@ -117,12 +125,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [running, setRunning] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [engine, setEngine] = useState<string>("");
+  const [locked, setLocked] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
-      .then((s) => setEngine(s.engineLabel))
+      .then((s) => {
+        setEngine(s.engineLabel);
+        setLocked(!!s.passwordProtected);
+      })
       .catch(() => {});
     const h = () => run();
     window.addEventListener("signalsort:run", h);
@@ -155,13 +167,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <div className="hidden shrink-0 bg-[#1d1f45] lg:block">
         <div className="sticky top-0 h-screen">
-          <Sidebar path={path} engine={engine} />
+          <Sidebar path={path} engine={engine} locked={locked} />
         </div>
       </div>
       {open && (
         <div className="fixed inset-0 z-40 bg-navy/40 lg:hidden" onClick={() => setOpen(false)}>
           <div className="h-full w-64" onClick={(e) => e.stopPropagation()}>
-            <Sidebar path={path} engine={engine} onClose={() => setOpen(false)} />
+            <Sidebar path={path} engine={engine} locked={locked} onClose={() => setOpen(false)} />
           </div>
         </div>
       )}
