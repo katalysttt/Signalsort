@@ -1,8 +1,8 @@
-// Loads (or clears) the hackathon demonstration scenario.
+// Loads (or clears) the sample workspace data. Loading imports data only;
+// the user then runs the analysis.
 import { q } from "@/lib/db";
 import { json } from "@/lib/api";
 import { buildDemoEvents, DEMO_FEEDBACK, DEMO_EVENT_SPEC, DEMO_PRODUCT } from "@/lib/demo";
-import { analyseItemsNow, runAnalysis } from "@/lib/pipeline";
 import { DEMO_SAMPLE_SOURCES } from "@/lib/demo-samples";
 import { parseFile, storeItems } from "@/lib/ingest";
 
@@ -25,13 +25,12 @@ export async function POST() {
     );
     ids.push(r.id);
   }
-  await analyseItemsNow(ids);
 
   // Extra demo sources (reviews, interviews, support chat, survey) so themes recur across sources.
   let extra = 0;
   for (const smp of DEMO_SAMPLE_SOURCES) {
     const { type, items } = await parseFile(smp.file, Buffer.from(smp.content, "utf8"), smp.hint);
-    const r = await storeItems({ name: smp.name, type, meta: { demo: true, file: smp.file } }, items);
+    const r = await storeItems({ name: smp.name, type, meta: { demo: true, file: smp.file } }, items, { analyse: false });
     extra += r.ids.length;
   }
 
@@ -50,8 +49,11 @@ export async function POST() {
     `INSERT INTO data_sources(name, type, status, item_count, meta) VALUES ('Simulated FoodDash events', 'sdk', 'connected', $1, $2::jsonb)`,
     [events.length, JSON.stringify({ simulated: true, spec: DEMO_EVENT_SPEC })],
   );
-  const result = await runAnalysis();
-  return json({ ok: true, feedback: ids.length + extra, events: events.length, insights: result.insights.length });
+  // Import only: the user runs the analysis themselves. Clear results from any earlier run.
+  await q("DELETE FROM recommendations");
+  await q("DELETE FROM analysis_runs");
+  await q("UPDATE feedback SET priority = NULL");
+  return json({ ok: true, feedback: ids.length + extra, events: events.length });
 }
 
 export async function DELETE() {

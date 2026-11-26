@@ -79,11 +79,11 @@ export default function Overview() {
         {header}
         <Empty
           title="No user signals yet"
-          body="Add feedback, upload transcripts or CSVs, or connect the tracking SDK. To see the full journey right away, load the FoodDash demo scenario."
+          body="Add feedback, upload transcripts or CSVs, or connect the tracking SDK. Or load the sample data to get started."
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <button className="btn-primary" onClick={loadDemo} disabled={seeding}>
-                {seeding ? <Spinner /> : <Rocket size={16} />} Load FoodDash demo
+                {seeding ? <Spinner /> : <Rocket size={16} />} Load data
               </button>
               <Link href="/sources" className="btn-secondary">
                 Add your own data
@@ -117,7 +117,7 @@ export default function Overview() {
       {(data.stale || data.totals.unanalysed > 0 || !result) && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <AlertTriangle size={16} />
-          {result ? "New data has arrived since the last analysis run." : "Run the analysis to generate insights and recommendations."}
+          {result ? "New data has arrived since the last analysis run." : `${data.totals.unanalysed} feedback items are ready. Click Run analysis to generate insights and recommendations.`}
         </div>
       )}
 
@@ -128,7 +128,7 @@ export default function Overview() {
           value={total}
           href="/inbox"
           chart={<Sparkline data={data.dailyFeedback} dataKey="feedback" color={TONES.violet.stroke} />}
-          hint={`${pct("negative") + pct("mixed")}% raise a problem`}
+          hint={data.totals.unanalysed ? `${data.totals.unanalysed} waiting for analysis` : `${pct("negative") + pct("mixed")}% raise a problem`}
         />
         <KpiCard
           label="Active users"

@@ -37,6 +37,7 @@ export async function parseFile(name: string, buf: Buffer, hint: SourceType | nu
 export async function storeItems(
   source: { name: string; type: SourceType; meta?: Record<string, unknown> },
   items: ParsedItem[],
+  opts: { analyse?: boolean } = {},
 ): Promise<{ sourceId: number; ids: number[] }> {
   const [src] = await q<{ id: number }>(
     "INSERT INTO data_sources(name, type, status, item_count, meta) VALUES ($1, $2, 'processing', $3, $4::jsonb) RETURNING id",
@@ -51,7 +52,7 @@ export async function storeItems(
     ids.push(row.id);
   }
   try {
-    await analyseItemsNow(ids);
+    if (opts.analyse !== false) await analyseItemsNow(ids);
     await q("UPDATE data_sources SET status = 'ready' WHERE id = $1", [src.id]);
   } catch (e: any) {
     await q("UPDATE data_sources SET status = 'error', meta = meta || $2::jsonb WHERE id = $1", [src.id, JSON.stringify({ error: String(e.message) })]);

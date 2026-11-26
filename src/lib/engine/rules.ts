@@ -39,7 +39,8 @@ const NEGATORS = /\b(not|never|no|isn'?t|wasn'?t|aren'?t|don'?t|doesn'?t|hardly)
 export function clauseSpans(text: string): { start: number; end: number }[] {
   const spans: { start: number; end: number }[] = [];
   // Sentence boundaries, then contrastive connectors.
-  const splitter = /(?<=[.!?])\s+|[;\n]+|,?\s+\b(?=(?:but|however|although|though|except|whereas|yet)\b)/gi;
+  // "…froze and I couldn't…": "and" followed by a new subject starts a new clause.
+  const splitter = /(?<=[.!?])\s+|[;\n]+|,?\s+\b(?=(?:but|however|although|though|except|whereas|yet)\b)|,?\s+and\s+(?=(?:i|i'm|i've|i'd|the|it|it's|my|they|there|this|that|we|you)\b)/gi;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = splitter.exec(text))) {

@@ -81,7 +81,7 @@ export const RULES: TopicRule[] = [
     area: "order_history",
     category: "Navigation & discoverability",
     feature: "Order history",
-    match: /(previous|past|old|recent|earlier|prior) (orders?|meals?|purchases?|transactions?)|order history|transaction(s| history)|receipts?|my orders/i,
+    match: /(previous|past|old|recent|earlier|prior|last|latest) (orders?|meals?|purchases?|transactions?)|order history|transaction(s| history)|receipts?|my orders/i,
     problem: {
       title: "Users struggle to find their previous orders",
       label: "Poor order-history discoverability",
@@ -147,8 +147,8 @@ export const RULES: TopicRule[] = [
     match: /payment|\bpay\b|paying|card|checkout|billing|wallet/i,
     requires: RELIABILITY,
     problem: {
-      title: "Payment page freezes during checkout",
-      label: "Payment page freezing",
+      title: "Payment page freezes or fails at checkout",
+      label: "Payment page freezing or failing",
       description: "Users report the payment step freezing or failing while they try to pay.",
       impact: "Blocks revenue at the last step of the purchase and erodes trust in paying through the app.",
     },
@@ -266,6 +266,27 @@ export const RULES: TopicRule[] = [
       ],
       metrics: ["Average promised-vs-actual delivery gap", "% late orders", "Delivery satisfaction rating"],
     },
+  },
+  {
+    id: "delivery",
+    area: "delivery",
+    category: "Delivery & fulfilment",
+    feature: "Delivery",
+    match: /deliver(y|ies|ed)?|courier|driver|rider|arriv/i,
+    problem: {
+      title: "Delivery experience falls short",
+      label: "Delivery problems",
+      description: "Users report problems with how their order was delivered.",
+      impact: "Poor deliveries undo a good ordering experience and reduce repeat orders.",
+    },
+    praise: { title: "Users like fast, reliable delivery", label: "Fast delivery" },
+    request: {
+      title: "Users want more delivery options",
+      label: "More delivery options",
+      description: "Users ask for more control over how and when orders arrive.",
+    },
+    severity: 3,
+    business: 4,
   },
   {
     id: "onboarding",

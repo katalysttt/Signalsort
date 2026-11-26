@@ -33,7 +33,7 @@ export default function SourcesPage() {
     { key: "paste", label: "Paste feedback", icon: ClipboardPaste },
     { key: "upload", label: "Upload files", icon: FileUp },
     { key: "sdk", label: "Tracking SDK", icon: Code2 },
-    { key: "demo", label: "Demo scenario", icon: PlayCircle },
+    { key: "demo", label: "Sample data", icon: PlayCircle },
   ];
 
   return (
@@ -421,7 +421,7 @@ function DemoPanel({ onDone }: { onDone: (m: string) => void }) {
     const r = await fetch("/api/demo", { method: "POST" });
     const j = await r.json();
     setBusy(null);
-    onDone(`Demo loaded: ${j.feedback} feedback items, ${j.events} simulated events, ${j.insights} insights.`);
+    onDone(`Data loaded: ${j.feedback} feedback items and ${j.events.toLocaleString()} events. Click Run analysis to analyse them.`);
     refreshAll();
   }
   async function reset() {
@@ -435,8 +435,8 @@ function DemoPanel({ onDone }: { onDone: (m: string) => void }) {
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <div>
-        <h3 className="font-semibold text-navy">FoodDash scenario</h3>
-        <p className="mt-1 text-sm text-navy-500">A fictional food-delivery app. Loads app-store reviews, two customer interviews, a survey, a support chat and an event stream, then runs the full analysis.</p>
+        <h3 className="font-semibold text-navy">FoodDash sample workspace</h3>
+        <p className="mt-1 text-sm text-navy-500">A fictional food-delivery app. Imports app-store reviews, two customer interviews, a survey, a support chat and product events. Then click Run analysis.</p>
         <ul className="mt-3 space-y-1 text-sm text-navy">
           {[
             "The app is easy to use, but delivery takes too long.",
@@ -454,12 +454,12 @@ function DemoPanel({ onDone }: { onDone: (m: string) => void }) {
       </div>
       <div>
         <div className="rounded-xl border border-line bg-surface p-4 text-sm text-navy-500">
-          <b>Simulated behaviour</b> (marked “Demo data” in the top bar): 100 users initiate checkout · 42 abandon at payment selection · 58 complete · 65 visit order history · 30 search for previous
+          <b>Behaviour events included:</b> 100 users initiate checkout · 42 abandon at payment selection · 58 complete · 65 visit order history · 30 search for previous
           orders · 25 repeatedly open and close the payment page.
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <button className="btn-primary" onClick={load} disabled={!!busy}>
-            {busy === "load" ? <Spinner /> : <PlayCircle size={16} />} Load demo & analyse
+            {busy === "load" ? <Spinner /> : <PlayCircle size={16} />} Load data
           </button>
           <button className="btn-secondary" onClick={reset} disabled={!!busy}>
             {busy === "reset" ? <Spinner /> : <RotateCcw size={16} />} Reset workspace
