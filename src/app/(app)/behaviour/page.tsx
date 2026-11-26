@@ -136,12 +136,6 @@ export default function BehaviourPage() {
               </div>
             </Card>
             <Card>
-              <CardHeader title="Page navigation" subtitle="Unique visitors per page" />
-              <div className="px-3 pb-3">
-                <HBar data={r.pages.slice(0, 8).map((p) => ({ name: human(p.page), users: p.users }))} dataKey="users" nameKey="name" color="#2a78d6" />
-              </div>
-            </Card>
-            <Card>
               <CardHeader
                 title={
                   <span className="flex items-center gap-2">

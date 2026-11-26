@@ -3,13 +3,15 @@ import { q } from "@/lib/db";
 import { json } from "@/lib/api";
 import { buildDemoEvents, DEMO_FEEDBACK, DEMO_EVENT_SPEC, DEMO_PRODUCT } from "@/lib/demo";
 import { analyseItemsNow, runAnalysis } from "@/lib/pipeline";
+import { DEMO_SAMPLE_SOURCES } from "@/lib/demo-samples";
+import { parseFile, storeItems } from "@/lib/ingest";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export async function POST() {
   // Replace any previous demo data so the scenario is reproducible.
-  await q("DELETE FROM data_sources WHERE type = 'demo' OR (meta->>'simulated') = 'true'");
+  await q("DELETE FROM data_sources WHERE type = 'demo' OR (meta->>'simulated') = 'true' OR (meta->>'demo') = 'true'");
   await q("DELETE FROM events WHERE source = 'simulated'");
   const [src] = await q<{ id: number }>(
     "INSERT INTO data_sources(name, type, status, item_count, meta) VALUES ($1, 'demo', 'ready', $2, $3::jsonb) RETURNING id",
@@ -24,6 +26,14 @@ export async function POST() {
     ids.push(r.id);
   }
   await analyseItemsNow(ids);
+
+  // Extra demo sources (reviews, interviews, support chat, survey) so themes recur across sources.
+  let extra = 0;
+  for (const smp of DEMO_SAMPLE_SOURCES) {
+    const { type, items } = await parseFile(smp.file, Buffer.from(smp.content, "utf8"), smp.hint);
+    const r = await storeItems({ name: smp.name, type, meta: { demo: true, file: smp.file } }, items);
+    extra += r.ids.length;
+  }
 
   const events = buildDemoEvents();
   for (let i = 0; i < events.length; i += 400) {
@@ -41,7 +51,7 @@ export async function POST() {
     [events.length, JSON.stringify({ simulated: true, spec: DEMO_EVENT_SPEC })],
   );
   const result = await runAnalysis();
-  return json({ ok: true, feedback: ids.length, events: events.length, insights: result.insights.length });
+  return json({ ok: true, feedback: ids.length + extra, events: events.length, insights: result.insights.length });
 }
 
 export async function DELETE() {

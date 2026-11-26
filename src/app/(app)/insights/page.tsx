@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { Activity, GitMerge, Info, Lightbulb, Quote, ThumbsUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Activity, ChevronDown, GitMerge, Info, Lightbulb, Quote, ThumbsUp } from "lucide-react";
 import { Badge, Card, Empty, human, Loading, OriginBadge, PriorityBadge, SENTIMENT_COLORS, useApi, PageHeader } from "@/components/ui";
 import { AREA_LABELS, type AnalysisResult, type BehaviourPattern, type Insight, type Recommendation } from "@/lib/types";
 
@@ -12,7 +13,7 @@ export default function InsightsPage() {
   if (!r) return <Empty title="No insights yet" body="Add feedback and press “Run analysis” to group it into themes, recurring problems and requests." />;
   const recByInsight = new Map((recs?.items ?? []).map((x) => [x.insightKey, x]));
   const issues = r.insights.filter((i) => i.kind !== "praise");
-  const praise = r.insights.filter((i) => i.kind === "praise");
+  const praise = r.insights.filter((i) => i.kind === "praise" && !i.key.startsWith("general:"));
   const patternMap = new Map(r.patterns.map((p) => [p.key, p]));
 
   return (
@@ -167,26 +168,32 @@ function SectionTitle({ icon, title, sub }: { icon: React.ReactNode; title: stri
 function InsightCard({ ins, rec, patterns, total }: { ins: Insight; rec?: Recommendation; patterns: BehaviourPattern[]; total: number }) {
   const sTotal = ins.sentiment.positive + ins.sentiment.negative + ins.sentiment.neutral || 1;
   const negPct = Math.round((ins.sentiment.negative / sTotal) * 100);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (decodeURIComponent(window.location.hash.slice(1)) === ins.key) setOpen(true);
+  }, [ins.key]);
   return (
-    <Card className="p-5">
+    <Card className="overflow-hidden">
       <div id={ins.key} className="scroll-mt-24" />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <button className="flex w-full items-start gap-4 p-5 text-left hover:bg-surface/50" onClick={() => setOpen(!open)} aria-expanded={open}>
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
+            <PriorityBadge p={ins.priority} />
             <Badge tone={ins.kind === "problem" ? "red" : "blue"}>{ins.kind === "problem" ? "Problem" : "Feature request"}</Badge>
-            <span className="text-xs text-navy-400">
-              {ins.feature} · {ins.category}
-            </span>
+            {patterns.length > 0 && <Badge tone="brand">Backed by behaviour</Badge>}
           </div>
           <h3 className="mt-2 text-base font-semibold text-navy">{ins.title}</h3>
-          <p className="mt-1 text-sm text-navy-500">{ins.description}</p>
+          {!open && ins.evidence[0] && <p className="mt-1 truncate text-sm italic text-navy-500">“{ins.evidence[0].quote}”</p>}
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <PriorityBadge p={ins.priority} />
-          <span className="text-xs text-navy-400">score {ins.score}/100</span>
+        <div className="shrink-0 text-right">
+          <div className="text-xl font-semibold text-navy">{ins.mentionCount}</div>
+          <div className="text-[11px] text-navy-400">mention{ins.mentionCount === 1 ? "" : "s"}</div>
         </div>
-      </div>
-
+        <ChevronDown size={18} className={`mt-1 shrink-0 text-navy-300 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+      <div className="border-t border-line p-5 pt-4">
+      <p className="text-sm text-navy-500">{ins.description} <span className="text-navy-400">({ins.feature} · {ins.category} · score {ins.score}/100)</span></p>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric label="Users mentioning" value={ins.mentionCount} sub={`of ${total} feedback items`} />
         <Metric label="Frequency" value={`${ins.frequency}%`} sub={`${ins.sourceCount} source${ins.sourceCount === 1 ? "" : "s"}`} />
@@ -243,6 +250,8 @@ function InsightCard({ ins, rec, patterns, total }: { ins: Insight; rec?: Recomm
           </div>
         </div>
       </div>
+      </div>
+      )}
     </Card>
   );
 }

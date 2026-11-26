@@ -436,7 +436,7 @@ function DemoPanel({ onDone }: { onDone: (m: string) => void }) {
     <div className="grid gap-5 lg:grid-cols-2">
       <div>
         <h3 className="font-semibold text-navy">FoodDash scenario</h3>
-        <p className="mt-1 text-sm text-navy-500">A fictional food-delivery app. Loads six pieces of feedback and a simulated event stream, then runs the full analysis.</p>
+        <p className="mt-1 text-sm text-navy-500">A fictional food-delivery app. Loads app-store reviews, two customer interviews, a survey, a support chat and an event stream, then runs the full analysis.</p>
         <ul className="mt-3 space-y-1 text-sm text-navy">
           {[
             "The app is easy to use, but delivery takes too long.",
