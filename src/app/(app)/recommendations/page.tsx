@@ -152,7 +152,7 @@ function RecCard({ r, rank, defaultOpen }: { r: Recommendation; rank: number; de
               <p className="text-xs leading-relaxed text-navy-500">{r.rationale}</p>
               {r.evidenceFeedbackIds.length > 0 && (
                 <p className="mt-2 text-xs text-navy-400">
-                  Evidence: feedback {r.evidenceFeedbackIds.map((id) => `#${id}`).join(", ")} · engine {r.engine === "rules" ? "rule-based playbook" : r.engine}
+                  Evidence: feedback {r.evidenceFeedbackIds.map((id) => `#${id}`).join(", ")}
                 </p>
               )}
             </div>

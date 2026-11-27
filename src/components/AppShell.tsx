@@ -49,8 +49,7 @@ export function Logo({ dark = false }: { dark?: boolean }) {
   );
 }
 
-function Sidebar({ path, engine, locked, onClose }: { path: string; engine: string; locked?: boolean; onClose?: () => void }) {
-  const rules = !engine || engine.startsWith("Built-in");
+function Sidebar({ path, locked, onClose }: { path: string; locked?: boolean; onClose?: () => void }) {
   return (
     <aside className="flex h-full w-64 flex-col overflow-y-auto overscroll-contain [scrollbar-color:rgba(255,255,255,0.15)_transparent] [scrollbar-width:thin] bg-gradient-to-b from-[#161935] to-[#1d1f45] px-4 py-5 text-slate-300">
       <div className="flex items-center justify-between">
@@ -95,20 +94,8 @@ function Sidebar({ path, engine, locked, onClose }: { path: string; engine: stri
         <ExternalLink size={17} /> FoodDash app
       </a>
 
-      <div className="mt-auto rounded-2xl border border-white/10 bg-white/5 p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Sparkles size={14} className="text-brand-400" /> Analysis engine
-        </div>
-        <p className="mt-1 text-xs text-slate-400">{rules ? "Built-in rule engine. Add an OpenAI or Anthropic key for LLM analysis." : engine}</p>
-        <div className="mt-3 h-1.5 rounded-full bg-white/10">
-          <div className={clsx("h-1.5 rounded-full bg-gradient-to-r from-brand-400 to-electric-500", rules ? "w-1/2" : "w-full")} />
-        </div>
-        <Link href="/sources" className="mt-3 inline-block text-xs font-medium text-brand-200 hover:text-white">
-          {rules ? "Configure AI provider →" : "Manage data sources →"}
-        </Link>
-      </div>
       {locked && (
-        <form method="POST" action="/api/logout" className="mt-3">
+        <form method="POST" action="/api/logout" className="mt-auto pt-3">
           <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white">
             <LogOut size={17} /> Log out
           </button>
@@ -124,7 +111,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [engine, setEngine] = useState<string>("");
   const [locked, setLocked] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -132,7 +118,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((s) => {
-        setEngine(s.engineLabel);
         setLocked(!!s.passwordProtected);
       })
       .catch(() => {});
@@ -169,13 +154,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <div className="hidden shrink-0 bg-[#1d1f45] lg:block">
         <div className="sticky top-0 h-screen">
-          <Sidebar path={path} engine={engine} locked={locked} />
+          <Sidebar path={path} locked={locked} />
         </div>
       </div>
       {open && (
         <div className="fixed inset-0 z-40 bg-navy/40 lg:hidden" onClick={() => setOpen(false)}>
           <div className="h-full w-64" onClick={(e) => e.stopPropagation()}>
-            <Sidebar path={path} engine={engine} locked={locked} onClose={() => setOpen(false)} />
+            <Sidebar path={path} locked={locked} onClose={() => setOpen(false)} />
           </div>
         </div>
       )}
@@ -213,7 +198,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">{children}</main>
         <footer className="mx-auto flex w-full max-w-7xl justify-between px-6 pb-6 text-[11px] text-navy-300">
           <span>SignalSort · Turn user signals into smarter product decisions</span>
-          <span className="hidden sm:inline">{engine}</span>
         </footer>
       </div>
       {toast && (

@@ -181,7 +181,6 @@ function Detail({ id, onClose }: { id: number; onClose: () => void }) {
                   <SentimentBadge s={a.sentiment} />
                   <Badge>{a.primaryCategory}</Badge>
                   <PriorityBadge p={it.priority} />
-                  <Badge tone="brand">Engine: {a.engine === "rules" ? "rule-based" : a.engine}</Badge>
                 </section>
                 <section>
                   <div className="label">AI summary</div>

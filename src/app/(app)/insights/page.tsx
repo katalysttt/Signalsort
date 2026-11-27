@@ -29,7 +29,6 @@ export default function InsightsPage() {
           ]}
         />
         <div className="mt-3 flex flex-wrap gap-2 text-xs text-navy-400">
-          <Badge tone="brand">Engine: {r.engine === "rules" ? "rule-based" : r.engine}</Badge>
           <Badge>{r.totals.analysed} feedback items analysed</Badge>
           <Badge>Run #{r.runId} · {new Date(r.createdAt).toLocaleString()}</Badge>
         </div>
